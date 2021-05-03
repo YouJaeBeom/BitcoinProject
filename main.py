@@ -178,9 +178,9 @@ if __name__ == '__main__':
     #coin_candlestick(coin_name_list,chart_intervals_list,sto_N,sto_m,sto_t)
 
     global con_key
-    con_key="92ccf25a931830a4c3dd664662d22011"
+    con_key=""
     global sec_key
-    sec_key="007734825a89b23735232c9aff5e38a9"
+    sec_key=""
 
     market_buy("XRP")
 
