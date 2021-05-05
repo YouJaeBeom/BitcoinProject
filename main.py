@@ -10,6 +10,7 @@ import datetime
 import pandas as pd
 from pybithumb.core import *
 from xcoin_api_client import *
+import pybithumb
 
 def coin_ticker_public(coin_name_list):
 
@@ -120,8 +121,8 @@ def get_balance():
     parm = {
     }
     result = api.xcoinApiCall("/info/balance", parm)
-    print(result["data"]["available_krw"])
     available_krw = result["data"]["available_krw"]
+
     return available_krw
 
 def market_buy(coin):
@@ -132,15 +133,19 @@ def market_buy(coin):
     balance = float(closing_price)
     available_krw = get_balance()
 
-    available_coin_count = (float(available_krw)/balance)*0.9
+    available_coin_count = (float(available_krw)*0.95/balance)
 
-    print("available_coin_count",available_coin_count,closing_price)
+    available_coin_count = format(float(available_coin_count), ".3f")
+
+    print("available_coin_count",available_coin_count,available_krw)
+
+
     api = XCoinAPI(con_key, sec_key)
 
     parm = {
         "order_currency": coin,
         "payment_currency": "KRW",
-        "units" : float(available_coin_count)
+        "units" : (available_coin_count)
     }
     result = api.xcoinApiCall("/trade/market_buy", parm)
 
@@ -148,7 +153,8 @@ def market_buy(coin):
 
 def market_sell(coin):
     balance = get_account(coin)
-
+    balance = format(float(balance), ".4f")
+    print(coin,balance)
     api = XCoinAPI(con_key, sec_key)
 
     parm = {
@@ -178,11 +184,15 @@ if __name__ == '__main__':
     #coin_candlestick(coin_name_list,chart_intervals_list,sto_N,sto_m,sto_t)
 
     global con_key
-    con_key=""
+    con_key="92ccf25a931830a4c3dd664662d22011"
     global sec_key
-    sec_key=""
+    sec_key="007734825a89b23735232c9aff5e38a9"
 
-    market_buy("XRP")
+
+
+    market_buy("ETC")
+    #market_sell("ETC")
+
 
 
 
