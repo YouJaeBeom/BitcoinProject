@@ -12,8 +12,10 @@ from pybithumb.core import *
 from xcoin_api_client import *
 import pybithumb
 import tkinter as tk
+from tkinter import*
+import tkinter.scrolledtext as tkst
+from tkinter import Menu
 from tkinter import ttk
-from tkinter import scrolledtext
 
 
 
@@ -172,59 +174,178 @@ def market_sell(coin):
 
     print("response", result)
 
+
 def gui():
-    win = tk.Tk()
+    # Click OK button
+    def clickOK():
+        text = "Your gender is " + gender.get()
+        text = text + "\nYou are " + str(age.get()) + " years old.\n"
+        scrt.insert(tk.INSERT, text)  # insert text in a scrolledtext
+        scrt.see(tk.END)
 
-    win.title("Python GUI")
+    # Click radio buttons
+    def clickRadio():
+        scrt.insert(tk.INSERT, value3.get())
+        scrt.see(tk.END)
 
-    a_label = ttk.Label(win, text="A Label")
-    a_label.grid(column=0, row=0)
+    # Click a exit menu
+    def clickExit():
+        win.quit()
+        win.destroy()
+        exit()
 
-    def click_me():
-        action.configure(text='Hello ' + name.get() + ' ' + number_chosen.get())
+    win = tk.Tk()  # Create instance
+    win.title("tkinter sample")  # Add a title
 
-    ttk.Label(win, text="Enter a name:").grid(column=0, row=0)
+    label_check = ttk.Label(win, text=" check")  # Create a label
+    label_check.grid(column=0, row=0)  # Label's grid
 
-    name = tk.StringVar()
-    name_entered = ttk.Entry(win, width=12, textvariable=name)
-    name_entered.grid(column=0, row=1)
+    label_coinname = ttk.Label(win, text=" 코인명")  # Create a label
+    label_coinname.grid(column=1, row=0)  # Label's grid
 
-    action = ttk.Button(win, text="Click Me!", command=click_me)
-    action.grid(column=2, row=1)  # <= change column to 2
+    label_price = ttk.Label(win, text=" 현재가")  # Create a label
+    label_price.grid(column=2, row=0)  # Label's grid
 
-    ttk.Label(win, text="Choose a number:").grid(column=1, row=0)
-    number = tk.StringVar()
-    number_chosen = ttk.Combobox(win, width=12, textvariable=number, state='readonly')
-    number_chosen['values'] = (1, 2, 4, 42, 100)
-    number_chosen.grid(column=1, row=1)
-    number_chosen.current(0)
+    label_avg5 = ttk.Label(win, text=" 5분평균")  # Create a label
+    label_avg5.grid(column=3, row=0)  # Label's grid
 
-    chVarDis = tk.IntVar()
-    check1 = tk.Checkbutton(win, text="Disabled", variable=chVarDis, state='disabled')
+    label_avg10 = ttk.Label(win, text=" 10분평균")  # Create a label
+    label_avg10.grid(column=4, row=0)  # Label's grid
+
+    label_avg30 = ttk.Label(win, text=" 30분평균")  # Create a label
+    label_avg30.grid(column=5, row=0)  # Label's grid
+
+    label_avg60 = ttk.Label(win, text=" 1시간 평균")  # Create a label
+    label_avg60.grid(column=6, row=0)  # Label's grid
+
+    label_length = ttk.Label(win, text="길이")  # Create a label
+    label_length.grid(column=7, row=0)  # Label's grid
+
+    length = tk.IntVar()  # Integer variable
+    length_Entered = ttk.Entry(win, width=3, textvariable=length)  # Create a textbox
+    length_Entered.grid(column=8, row=0)
+
+    label_smoothk = ttk.Label(win, text="스무스K")  # Create a label
+    label_smoothk.grid(column=9, row=0)  # Label's grid
+
+    smoothk = tk.IntVar()  # Integer variable
+    smoothk_Entered = ttk.Entry(win, width=3, textvariable=smoothk)  # Create a textbox
+    smoothk_Entered.grid(column=10, row=0)
+
+    label_smoothd = ttk.Label(win, text="스무스D")  # Create a label
+    label_smoothd.grid(column=11, row=0)  # Label's grid
+
+    smoothd = tk.IntVar()  # Integer variable
+    smoothd_Entered = ttk.Entry(win, width=3, textvariable=smoothd)  # Create a textbox
+    smoothd_Entered.grid(column=12, row=0)
+
+    for index in range(1,10):
+        value2 = tk.IntVar()
+        check2 = tk.Checkbutton(win, variable=value2)  # Create a check button
+        check2.grid(column=0, row=index)
+
+        coinname_textbox = ttk.Entry(win, width=10, textvariable=str)
+        coinname_textbox.grid(column=1, row=index)
+
+        price_textbox = ttk.Entry(win, width=10, textvariable=str)
+        price_textbox.grid(column=2, row=index)
+
+        avg5_textbox = ttk.Entry(win, width=10, textvariable=str)
+        avg5_textbox.grid(column=3, row=index)
+
+        avg10_textbox = ttk.Entry(win, width=10, textvariable=str)
+        avg10_textbox.grid(column=4, row=index)
+
+        avg30_textbox = ttk.Entry(win, width=10, textvariable=str)
+        avg30_textbox.grid(column=5, row=index)
+
+        avg60_textbox = ttk.Entry(win, width=10, textvariable=str)
+        avg60_textbox.grid(column=6, row=index)
+
+        length_textbox = ttk.Entry(win, width=10, textvariable=str)
+        length_textbox.grid(column=7, row=index)
+
+        smoothk_textbox = ttk.Entry(win, width=10, textvariable=str)
+        smoothk_textbox.grid(column=9, row=index)
+
+        smoothd_textbox = ttk.Entry(win, width=10, textvariable=str)
+        smoothd_textbox.grid(column=11, row=index)
+
+    ## API KEY setting gui
+    label_apiKey = ttk.Label(win, text="apiKey")  # Create a label
+    label_apiKey.grid(column=0, row=11)  # Label's grid
+    apiKey_textbox = ttk.Entry(win, width=10, textvariable=str)
+    apiKey_textbox.grid(column=0, row=12)
+
+    label_secretKey = ttk.Label(win, text="secretKey")  # Create a label
+    label_secretKey.grid(column=1, row=11)  # Label's grid
+    secretKey_textbox = ttk.Entry(win, width=10, textvariable=str)
+    secretKey_textbox.grid(column=1, row=12)
+
+    label_portnumber = ttk.Label(win, text="포트번호")  # Create a label
+    label_portnumber.grid(column=2, row=11)  # Label's grid
+    portnumber = tk.StringVar()  # String variable
+    portnumberCombo = ttk.Combobox(win, width=6, textvariable=portnumber)  # Create a combobox
+    portnumberCombo['values'] = ("COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9")  # Combobox's items
+    portnumberCombo.grid(column=2, row=12)
+    portnumberCombo.current(0)
+
+    start_action = ttk.Button(win, text="시작", command=clickOK)  # Create a button
+    start_action.grid(column=5, row=12)
+
+    end_action = ttk.Button(win, text="종료", command=clickOK)  # Create a button
+    end_action.grid(column=6, row=12)
+
+
+
+    """
+    gender = tk.StringVar()  # String variable
+    genderCombo = ttk.Combobox(win, width=6, textvariable=gender)  # Create a combobox
+    genderCombo['values'] = ("Female", "Male")  # Combobox's items
+    genderCombo.grid(column=0, row=1)
+    genderCombo.current(0)
+
+    age = tk.IntVar()  # Integer variable
+    ageEntered = ttk.Entry(win, width=3, textvariable=age)  # Create a textbox
+    ageEntered.grid(column=1, row=1)
+    """
+
+    """action = ttk.Button(win, text="OK", command=clickOK)  # Create a button
+    action.grid(column=2, row=1)
+
+    scrt = tkst.ScrolledText(win, width=33, height=3, wrap=tk.WORD)  # Create a scrolledtext
+    scrt.grid(column=0, row=2, columnspan=3)
+    scrt.focus_set()  # Default focus
+
+    value1 = tk.IntVar()
+    check1 = tk.Checkbutton(win, text="Disabled", variable=value1, state='disabled')  # Create a check button
     check1.select()
-    check1.grid(column=0, row=4, sticky=tk.W)
+    check1.grid(column=0, row=3)
 
-    chVarUn = tk.IntVar()
-    check2 = tk.Checkbutton(win, text="UnChecked", variable=chVarUn)
-    check2.deselect()
-    check2.grid(column=1, row=4, sticky=tk.W)
+    value2 = tk.IntVar()
+    check2 = tk.Checkbutton(win, text="UnChecked", variable=value2)  # Create a check button
+    check2.grid(column=1, row=3)
 
-    chVarEn = tk.IntVar()
-    check3 = tk.Checkbutton(win, text="Enabled", variable=chVarEn)
-    check3.deselect()
-    check3.grid(column=2, row=4, sticky=tk.W)
+    value3 = tk.StringVar()
+    rad1 = tk.Radiobutton(win, text="Radio1", variable=value3, value="Clicked a Radio1.\n",
+                          command=clickRadio)  # Create a radio button
+    rad1.select()
+    rad1.grid(column=2, row=3)
+    rad2 = tk.Radiobutton(win, text="Radio2", variable=value3, value="Clicked a Radio2.\n",
+                          command=clickRadio)  # Create a radio button
+    rad2.grid(column=2, row=4)"""
 
+    menuBar = Menu(win)  # Create a menu
+    win.config(menu=menuBar)
 
+    fileMenu = Menu(menuBar, tearoff=0)  # Create the File Menu
+    fileMenu.add_command(label="New")  # Add the "New" menu
+    fileMenu.add_separator()  # Add a separator
+    fileMenu.add_command(label="Exit", command=clickExit)  # Add the "Exit" menu and bind a function
+    menuBar.add_cascade(label="File", menu=fileMenu)
 
-    # 스크롤 텍스트
-    scrol_w = 50
-    scrol_h = 3
-    scr = scrolledtext.ScrolledText(win, width=scrol_w, height=scrol_h, wrap=tk.WORD)
-    scr.grid(column=0, columnspan=3)
-
-    name_entered.focus()
-
-    win.mainloop()
+    win.resizable(0, 0)  # Disable resizing the GUI
+    win.mainloop()  # Start GUI
 
 
 
