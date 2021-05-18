@@ -16,36 +16,34 @@ from tkinter import*
 import tkinter.scrolledtext as tkst
 from tkinter import Menu
 from tkinter import ttk
+import os
+import threading
 
 
 
-def coin_ticker_public(coin_name_list):
+def coin_ticker_public(coin_name):
 
-    for coin_name in coin_name_list :
-        bitcoin_api_url = 'https://api.bithumb.com/public/ticker/%s_%s'%(coin_name,"KRW")
-        response = requests.get(bitcoin_api_url)
-        time.sleep(1)
-        response_json = response.json()
+    bitcoin_api_url = 'https://api.bithumb.com/public/ticker/%s_%s'%(coin_name,"KRW")
+    response = requests.get(bitcoin_api_url)
+    time.sleep(1)
+    response_json = response.json()
 
-        opening_price = response_json['data']['opening_price']
-        closing_price = response_json['data']['closing_price']
-        min_price = response_json['data']['min_price']
-        max_price = response_json['data']['max_price']
-        units_traded = response_json['data']['units_traded']
-        acc_trade_value = response_json['data']['acc_trade_value']
-        prev_closing_price = response_json['data']['prev_closing_price']
-        units_traded_24H = response_json['data']['units_traded_24H']
-        acc_trade_value_24H = response_json['data']['acc_trade_value_24H']
-        fluctate_24H = response_json['data']['fluctate_24H']
-        fluctate_rate_24H = response_json['data']['fluctate_rate_24H']
-        date = response_json['data']['date']
+    opening_price = response_json['data']['opening_price']
+    closing_price = response_json['data']['closing_price']
+    min_price = response_json['data']['min_price']
+    max_price = response_json['data']['max_price']
+    units_traded = response_json['data']['units_traded']
+    acc_trade_value = response_json['data']['acc_trade_value']
+    prev_closing_price = response_json['data']['prev_closing_price']
+    units_traded_24H = response_json['data']['units_traded_24H']
+    acc_trade_value_24H = response_json['data']['acc_trade_value_24H']
+    fluctate_24H = response_json['data']['fluctate_24H']
+    fluctate_rate_24H = response_json['data']['fluctate_rate_24H']
+    date = response_json['data']['date']
 
-        print("closing_price",closing_price)
+    print("closing_price",closing_price)
 
-
-
-
-
+    return closing_price
 
 
 def coin_candlestick(coin_name_list,chart_intervals_list,sto_N,sto_m,sto_t):
@@ -110,7 +108,7 @@ def coin_candlestick(coin_name_list,chart_intervals_list,sto_N,sto_m,sto_t):
 
             print(df)
             print(df.iloc[len(df)-1]["stochastic%K"])
-            result.config(text=answer)
+
 
 def get_account(coin):
     api = XCoinAPI(con_key, sec_key)
@@ -177,16 +175,21 @@ def market_sell(coin):
 
 def gui():
     # Click OK button
-    def clickOK():
-        text = "Your gender is " + gender.get()
-        text = text + "\nYou are " + str(age.get()) + " years old.\n"
-        scrt.insert(tk.INSERT, text)  # insert text in a scrolledtext
-        scrt.see(tk.END)
 
-    # Click radio buttons
-    def clickRadio():
-        scrt.insert(tk.INSERT, value3.get())
-        scrt.see(tk.END)
+    def realtime_update():
+        while True:
+            for index,value in enumerate(lines):
+                closing_price = coin_ticker_public(value)
+                price_textEntry[index].set(closing_price)
+
+    def clickOK():
+        global con_key
+        con_key = apiKey_textbox.get()
+        global sec_key
+        sec_key = secretKey_textbox.get()
+
+        threading.Thread(target=realtime_update, daemon=True).start()
+
 
     # Click a exit menu
     def clickExit():
@@ -239,101 +242,122 @@ def gui():
     smoothd_Entered = ttk.Entry(win, width=3, textvariable=smoothd)  # Create a textbox
     smoothd_Entered.grid(column=12, row=0)
 
-    for index in range(1,10):
-        value2 = tk.IntVar()
-        check2 = tk.Checkbutton(win, variable=value2)  # Create a check button
-        check2.grid(column=0, row=index)
+    check_box = {}
+    coinname_textboxs ={}
+    coinname_textEntry = {}
+    price_textboxs={}
+    price_textEntry = {}
+    avg5_textboxs={}
+    avg5_textEntry = {}
+    avg10_textboxs={}
+    avg10_textEntry = {}
+    avg30_textboxs={}
+    avg30_textEntry = {}
+    avg60_textboxs={}
+    avg60_textEntry = {}
+    length_textboxs={}
+    length_textEntry = {}
+    smoothk_textboxs={}
+    smoothk_textEntry = {}
+    smoothd_textboxs={}
+    smoothd_textEntry = {}
 
-        coinname_textbox = ttk.Entry(win, width=10, textvariable=str)
-        coinname_textbox.grid(column=1, row=index)
 
-        price_textbox = ttk.Entry(win, width=10, textvariable=str)
-        price_textbox.grid(column=2, row=index)
 
-        avg5_textbox = ttk.Entry(win, width=10, textvariable=str)
-        avg5_textbox.grid(column=3, row=index)
+    print(os.getcwd())
+    f = open(os.getcwd()+"/coin.txt", 'r')
+    lines = f.readline()
+    lines = lines.split(",")
 
-        avg10_textbox = ttk.Entry(win, width=10, textvariable=str)
-        avg10_textbox.grid(column=4, row=index)
+    for index,val in enumerate((lines)):
+        value = tk.IntVar()
+        check = tk.Checkbutton(
+            win,
+            variable=value
+        )
+        check.grid(column=0, row=index+1)
+        check_box[index] = check
 
-        avg30_textbox = ttk.Entry(win, width=10, textvariable=str)
-        avg30_textbox.grid(column=5, row=index)
+        coinname_textEntry[index] = tk.StringVar()
+        coinname_textEntry[index].set(val)
+        coinname_textbox = ttk.Entry(win, width=10, textvariable=coinname_textEntry[index])
+        coinname_textbox.grid(column=1, row=index+1)
+        coinname_textboxs[index] = coinname_textbox
 
-        avg60_textbox = ttk.Entry(win, width=10, textvariable=str)
-        avg60_textbox.grid(column=6, row=index)
+        price_textEntry[index] = tk.StringVar()
+        #price_textEntry[index].set(val)
+        price_textbox = ttk.Entry(win, width=10, textvariable=price_textEntry[index])
+        price_textbox.grid(column=2, row=index+1)
+        price_textboxs[index] = price_textbox
 
-        length_textbox = ttk.Entry(win, width=10, textvariable=str)
-        length_textbox.grid(column=7, row=index)
+        avg5_textEntry[index] = tk.StringVar()
+        #avg5_textEntry[index].set(val)
+        avg5_textbox = ttk.Entry(win, width=10, textvariable=avg5_textEntry[index])
+        avg5_textbox.grid(column=3, row=index+1)
+        avg5_textboxs[index] = avg5_textbox
 
-        smoothk_textbox = ttk.Entry(win, width=10, textvariable=str)
-        smoothk_textbox.grid(column=9, row=index)
+        avg10_textEntry[index] = tk.StringVar()
+        #avg10_textEntry[index].set(val)
+        avg10_textbox = ttk.Entry(win, width=10, textvariable=avg10_textEntry[index])
+        avg10_textbox.grid(column=4, row=index+1)
+        avg10_textboxs[index] = avg10_textbox
 
-        smoothd_textbox = ttk.Entry(win, width=10, textvariable=str)
-        smoothd_textbox.grid(column=11, row=index)
+        avg30_textEntry[index] = tk.StringVar()
+        #avg30_textEntry[index].set(val)
+        avg30_textbox = ttk.Entry(win, width=10, textvariable=avg30_textEntry[index])
+        avg30_textbox.grid(column=5, row=index+1)
+        avg30_textboxs[index] = avg30_textbox
+
+        avg60_textEntry[index] = tk.StringVar()
+        #avg60_textEntry[index].set(val)
+        avg60_textbox = ttk.Entry(win, width=10, textvariable=avg60_textEntry[index])
+        avg60_textbox.grid(column=6, row=index+1)
+        avg60_textboxs[index] = avg60_textbox
+
+        length_textEntry[index] = tk.StringVar()
+        #length_textEntry[index].set(val)
+        length_textbox = ttk.Entry(win, width=10, textvariable=length_textEntry[index])
+        length_textbox.grid(column=7, row=index+1)
+        length_textboxs[index] = length_textbox
+
+        smoothk_textEntry[index] = tk.StringVar()
+        #smoothk_textEntry[index].set(val)
+        smoothk_textbox = ttk.Entry(win, width=10, textvariable=smoothk_textEntry[index])
+        smoothk_textbox.grid(column=9, row=index+1)
+        smoothk_textboxs[index] = smoothk_textbox
+
+        smoothd_textEntry[index] = tk.StringVar()
+        #smoothd_textEntry[index].set(val)
+        smoothd_textbox = ttk.Entry(win, width=10, textvariable=smoothd_textEntry[index])
+        smoothd_textbox.grid(column=11, row=index+1)
+        smoothd_textboxs[index] = smoothd_textbox
 
     ## API KEY setting gui
     label_apiKey = ttk.Label(win, text="apiKey")  # Create a label
-    label_apiKey.grid(column=0, row=11)  # Label's grid
-    apiKey_textbox = ttk.Entry(win, width=10, textvariable=str)
-    apiKey_textbox.grid(column=0, row=12)
+    label_apiKey.grid(column=0, row=len(lines)+1)  # Label's grid
+    apiKey_textbox = ttk.Entry(win, width=20, textvariable=str)
+    apiKey_textbox.insert(0, "92ccf25a931830a4c3dd664662d22011")
+    apiKey_textbox.grid(column=0, row=len(lines)+2)
 
     label_secretKey = ttk.Label(win, text="secretKey")  # Create a label
-    label_secretKey.grid(column=1, row=11)  # Label's grid
-    secretKey_textbox = ttk.Entry(win, width=10, textvariable=str)
-    secretKey_textbox.grid(column=1, row=12)
+    label_secretKey.grid(column=1, row=len(lines)+1)  # Label's grid
+    secretKey_textbox = ttk.Entry(win, width=20, textvariable=str)
+    secretKey_textbox.insert(0, "007734825a89b23735232c9aff5e38a9")
+    secretKey_textbox.grid(column=1, row=len(lines)+2)
 
     label_portnumber = ttk.Label(win, text="포트번호")  # Create a label
-    label_portnumber.grid(column=2, row=11)  # Label's grid
+    label_portnumber.grid(column=2, row=len(lines)+1)  # Label's grid
     portnumber = tk.StringVar()  # String variable
     portnumberCombo = ttk.Combobox(win, width=6, textvariable=portnumber)  # Create a combobox
     portnumberCombo['values'] = ("COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9")  # Combobox's items
-    portnumberCombo.grid(column=2, row=12)
+    portnumberCombo.grid(column=2, row=len(lines)+2)
     portnumberCombo.current(0)
 
     start_action = ttk.Button(win, text="시작", command=clickOK)  # Create a button
-    start_action.grid(column=5, row=12)
+    start_action.grid(column=5, row=len(lines)+2)
 
-    end_action = ttk.Button(win, text="종료", command=clickOK)  # Create a button
-    end_action.grid(column=6, row=12)
-
-
-
-    """
-    gender = tk.StringVar()  # String variable
-    genderCombo = ttk.Combobox(win, width=6, textvariable=gender)  # Create a combobox
-    genderCombo['values'] = ("Female", "Male")  # Combobox's items
-    genderCombo.grid(column=0, row=1)
-    genderCombo.current(0)
-
-    age = tk.IntVar()  # Integer variable
-    ageEntered = ttk.Entry(win, width=3, textvariable=age)  # Create a textbox
-    ageEntered.grid(column=1, row=1)
-    """
-
-    """action = ttk.Button(win, text="OK", command=clickOK)  # Create a button
-    action.grid(column=2, row=1)
-
-    scrt = tkst.ScrolledText(win, width=33, height=3, wrap=tk.WORD)  # Create a scrolledtext
-    scrt.grid(column=0, row=2, columnspan=3)
-    scrt.focus_set()  # Default focus
-
-    value1 = tk.IntVar()
-    check1 = tk.Checkbutton(win, text="Disabled", variable=value1, state='disabled')  # Create a check button
-    check1.select()
-    check1.grid(column=0, row=3)
-
-    value2 = tk.IntVar()
-    check2 = tk.Checkbutton(win, text="UnChecked", variable=value2)  # Create a check button
-    check2.grid(column=1, row=3)
-
-    value3 = tk.StringVar()
-    rad1 = tk.Radiobutton(win, text="Radio1", variable=value3, value="Clicked a Radio1.\n",
-                          command=clickRadio)  # Create a radio button
-    rad1.select()
-    rad1.grid(column=2, row=3)
-    rad2 = tk.Radiobutton(win, text="Radio2", variable=value3, value="Clicked a Radio2.\n",
-                          command=clickRadio)  # Create a radio button
-    rad2.grid(column=2, row=4)"""
+    end_action = ttk.Button(win, text="종료", command=clickExit)  # Create a button
+    end_action.grid(column=6, row=len(lines)+2)
 
     menuBar = Menu(win)  # Create a menu
     win.config(menu=menuBar)
@@ -358,20 +382,19 @@ if __name__ == '__main__':
     #chart_intervals_list = ['1m', '3m', '5m', '10m', '30m', '1h', '6h', '12h', '24h']
     chart_intervals_list = ['1m']
 
-    chart_intervals_list = ['1m']
-
     sto_N = 14
     sto_m = 1
     sto_t = 3
 
     #coin_ticker_public(coin_name_list)
+    #coin_candlestick(coin_name_list,chart_intervals_list,sto_N,sto_m,sto_t)
 
-    coin_candlestick(coin_name_list,chart_intervals_list,sto_N,sto_m,sto_t)
-
+    """
     global con_key
     con_key="92ccf25a931830a4c3dd664662d22011"
     global sec_key
     sec_key="007734825a89b23735232c9aff5e38a9"
+    """
 
 
 
