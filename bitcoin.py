@@ -164,13 +164,13 @@ class Bitcoin(tk.Frame):
         self.label_apiKey = ttk.Label(self.win, text="apiKey")  # Create a label
         self.label_apiKey.grid(column=0, row=len(self.lines) + 1)  # Label's grid
         self.apiKey_textbox = ttk.Entry(self.win, width=20, textvariable=str)
-        self.apiKey_textbox.insert(0, "92ccf25a931830a4c3dd664662d22011")
+        self.apiKey_textbox.insert(0, "")
         self.apiKey_textbox.grid(column=0, row=len(self.lines) + 2)
 
         self.label_secretKey = ttk.Label(self.win, text="secretKey")  # Create a label
         self.label_secretKey.grid(column=1, row=len(self.lines) + 1)  # Label's grid
         self.secretKey_textbox = ttk.Entry(self.win, width=20, textvariable=str)
-        self.secretKey_textbox.insert(0, "007734825a89b23735232c9aff5e38a9")
+        self.secretKey_textbox.insert(0, "")
         self.secretKey_textbox.grid(column=1, row=len(self.lines) + 2)
 
         self.label_portnumber = ttk.Label(self.win, text="포트번호")  # Create a label

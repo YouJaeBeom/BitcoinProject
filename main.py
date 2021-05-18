@@ -336,13 +336,13 @@ def gui():
     label_apiKey = ttk.Label(win, text="apiKey")  # Create a label
     label_apiKey.grid(column=0, row=len(lines)+1)  # Label's grid
     apiKey_textbox = ttk.Entry(win, width=20, textvariable=str)
-    apiKey_textbox.insert(0, "92ccf25a931830a4c3dd664662d22011")
+    apiKey_textbox.insert(0, "")
     apiKey_textbox.grid(column=0, row=len(lines)+2)
 
     label_secretKey = ttk.Label(win, text="secretKey")  # Create a label
     label_secretKey.grid(column=1, row=len(lines)+1)  # Label's grid
     secretKey_textbox = ttk.Entry(win, width=20, textvariable=str)
-    secretKey_textbox.insert(0, "007734825a89b23735232c9aff5e38a9")
+    secretKey_textbox.insert(0, "")
     secretKey_textbox.grid(column=1, row=len(lines)+2)
 
     label_portnumber = ttk.Label(win, text="포트번호")  # Create a label
