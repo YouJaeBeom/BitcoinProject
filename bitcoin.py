@@ -145,48 +145,55 @@ class Bitcoin(tk.Frame):
             self.length_textEntry[index] = tk.StringVar()
             # length_textEntry[index].set(val)
             self.length_textbox = ttk.Entry(self.win, width=10, textvariable=self.length_textEntry[index])
-            self.length_textbox.grid(column=7, row=index + 1)
+            self.length_textbox.grid(column=7, row=index + 1,columnspan=2)
             self.length_textboxs[index] = self.length_textbox
 
             self.smoothk_textEntry[index] = tk.StringVar()
             # smoothk_textEntry[index].set(val)
             self.smoothk_textbox = ttk.Entry(self.win, width=10, textvariable=self.smoothk_textEntry[index])
-            self.smoothk_textbox.grid(column=9, row=index + 1)
+            self.smoothk_textbox.grid(column=9, row=index + 1,columnspan=2)
             self.smoothk_textboxs[index] = self.smoothk_textbox
 
             self.smoothd_textEntry[index] = tk.StringVar()
             # smoothd_textEntry[index].set(val)
             self.smoothd_textbox = ttk.Entry(self.win, width=10, textvariable=self.smoothd_textEntry[index])
-            self.smoothd_textbox.grid(column=11, row=index + 1)
+            self.smoothd_textbox.grid(column=11, row=index + 1,columnspan=2)
             self.smoothd_textboxs[index] = self.smoothd_textbox
+
+        self.scrt = tkst.ScrolledText(self.win, width=150, height=30, wrap=tk.WORD)  # Create a scrolledtext
+        self.scrt.grid(column=1, row=len(self.lines) + 2, columnspan=11)
+        self.scrt.focus_set()
+
 
         ## API KEY setting gui
         self.label_apiKey = ttk.Label(self.win, text="apiKey")  # Create a label
-        self.label_apiKey.grid(column=0, row=len(self.lines) + 1)  # Label's grid
-        self.apiKey_textbox = ttk.Entry(self.win, width=20, textvariable=str)
+        self.label_apiKey.grid(column=0, row=len(self.lines) + 3)  # Label's grid
+        self.apiKey_textbox = ttk.Entry(self.win, width=10, textvariable=str)
         self.apiKey_textbox.insert(0, "")
-        self.apiKey_textbox.grid(column=0, row=len(self.lines) + 2)
+        self.apiKey_textbox.grid(column=0, row=len(self.lines) + 4)
 
         self.label_secretKey = ttk.Label(self.win, text="secretKey")  # Create a label
-        self.label_secretKey.grid(column=1, row=len(self.lines) + 1)  # Label's grid
-        self.secretKey_textbox = ttk.Entry(self.win, width=20, textvariable=str)
+        self.label_secretKey.grid(column=1, row=len(self.lines) + 3)  # Label's grid
+        self.secretKey_textbox = ttk.Entry(self.win, width=10, textvariable=str)
         self.secretKey_textbox.insert(0, "")
-        self.secretKey_textbox.grid(column=1, row=len(self.lines) + 2)
+        self.secretKey_textbox.grid(column=1, row=len(self.lines) + 4)
 
         self.label_portnumber = ttk.Label(self.win, text="포트번호")  # Create a label
-        self.label_portnumber.grid(column=2, row=len(self.lines) + 1)  # Label's grid
+        self.label_portnumber.grid(column=2, row=len(self.lines) + 3)  # Label's grid
         self.portnumber = tk.StringVar()  # String variable
         self.portnumberCombo = ttk.Combobox(self.win, width=6, textvariable=self.portnumber)  # Create a combobox
         self.portnumberCombo['values'] = (
         "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9")  # Combobox's items
-        self.portnumberCombo.grid(column=2, row=len(self.lines) + 2)
+        self.portnumberCombo.grid(column=2, row=len(self.lines) + 4)
         self.portnumberCombo.current(0)
 
+
+
         self.start_action = ttk.Button(self.win, text="시작", command=self.clickOK)  # Create a button
-        self.start_action.grid(column=5, row=len(self.lines) + 2)
+        self.start_action.grid(column=5, row=len(self.lines) + 4)
 
         self.end_action = ttk.Button(self.win, text="종료", command=self.clickExit)  # Create a button
-        self.end_action.grid(column=6, row=len(self.lines) + 2)
+        self.end_action.grid(column=6, row=len(self.lines) + 4)
 
         self.menuBar = Menu(self.win)  # Create a menu
         self.win.config(menu=self.menuBar)
