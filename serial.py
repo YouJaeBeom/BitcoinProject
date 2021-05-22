@@ -1,105 +1,137 @@
+#-*- coding:utf-8 -*-
 import sys
-
+import time
 import serial
-
 import threading
 import queue
-import tkinter as tk
 
-# Serial COM
-class SerialThread(threading.Thread):
-    '''
-    Control RS-xxx Ports
-    '''
-    seq = serial.Serial('COM10', 9600, timeout=1)  # MS-Windows
-    # seq = serial.Serial('/dev/ttyUSB0', 9600) # Linux
-    is_run = True
+class Protocol(object):
+    """\
+    Protocol as used by the ReaderThread. This base class provides empty
+    implementations of all methods.
+    """
 
-    def __init__(self, que):
-        threading.Thread.__init__(self)
-        self.queue = que
+    def connection_made(self, transport):
+        """Called when reader thread is started"""
+
+    def data_received(self, data):
+        """Called with snippets received from the serial port"""
+
+    def connection_lost(self, exc):
+        """\
+        Called when the serial port is closed or the reader loop terminated
+        otherwise.
+        """
+        if isinstance(exc, Exception):
+            raise exc
+
+
+class ReaderThread(threading.Thread):
+    """\
+    Implement a serial port read loop and dispatch to a Protocol instance (like
+    the asyncio.Protocol) but do it with threads.
+    Calls to close() will close the serial port but it is also possible to just
+    stop() this thread and continue the serial port instance otherwise.
+    """
+
+    def __init__(self, serial_instance, protocol_factory):
+        """\
+        Initialize thread.
+        Note that the serial_instance' timeout is set to one second!
+        Other settings are not changed.
+        """
+        super(ReaderThread, self).__init__()
+        self.daemon = True
+        self.serial = serial_instance
+        self.protocol_factory = protocol_factory
+        self.alive = True
+        self._lock = threading.Lock()
+        self._connection_made = threading.Event()
+        self.protocol = None
+
+    def stop(self):
+        """Stop the reader thread"""
+        self.alive = False
+        if hasattr(self.serial, 'cancel_read'):
+            self.serial.cancel_read()
+        self.join(2)
+
     def run(self):
-        while self.is_run:
-            if self.seq.inWaiting():
-                text = self.seq.readline(self.seq.inWaiting())
-                self.queue.put(text)
-
-# App Main
-class App(tk.Tk):
-    '''
-    Application Main
-    '''
-    def __init__(self):
-        tk.Tk.__init__(self)
-
-        # Really Full screen (No title bar)
-        # self.attributes('-fullscreen', True)
-
-        # Maximize (Exist title bar)
-        # self.win_w, self.win_h = self.winfo_screenwidth(), self.winfo_screenheight()
-        # self.geometry("%dx%d+0+0" % (self.win_w, self.win_h))
-
-        # Move center
-        self.win_w = self.winfo_reqwidth()
-        self.win_h = self.winfo_reqheight()
-        self.screen_w = self.winfo_screenwidth()
-        self.screen_h = self.winfo_screenheight()
-        self.loc_x = (self.screen_w/2) - (self.win_w/2)
-        self.loc_y = (self.screen_h/2) - (self.win_h/2)
-        self.geometry('+%d+%d' % (self.loc_x, self.loc_y))
-
-        self.svar = ""
-
-        self.rlabel = tk.Label(self, text="Received:")
-        self.rlabel.grid(row=0, column=0)
-
-        # self.rdata = tk.Entry(self, textvariable=self.svar)   # Text input field
-        self.rdata = tk.Label(self, text=self.svar) # Label
-        self.rdata.grid(row=0, column=1)
-
-        self.slabel = tk.Label(self, text="Send:")
-        self.slabel.grid(row=1, column=0)
-
-        self.sdata = tk.Entry(self)
-        self.sdata.grid(row=1, column=1)
-
-        self.btn_send = tk.Button(self, text="Send", width=15, command=self.on_send)
-        self.btn_send.grid(row=2, column=1)
-
-        self.queue = queue.Queue()
-        self.thread = SerialThread(self.queue)
-        self.thread.start()
-        self.process_serial()
-
-    def on_send(self):
-        '''
-        Send data via serial port
-        '''
-        data = self.sdata.get()
-        # print(data + " Send Clicked")
-        SerialThread.seq.write(bytes(data, encoding='ascii'))
-        # self.ser.close()
-
-    def process_serial(self):
-        '''
-        Receive data via serial port
-        '''
-        while self.queue.qsize():
+        """Reader loop"""
+        if not hasattr(self.serial, 'cancel_read'):
+            self.serial.timeout = 1
+        self.protocol = self.protocol_factory()
+        try:
+            self.protocol.connection_made(self)
+        except Exception as e:
+            self.alive = False
+            self.protocol.connection_lost(e)
+            self._connection_made.set()
+            return
+        error = None
+        self._connection_made.set()
+        while self.alive and self.serial.is_open:
             try:
-                received_data = self.queue.get()
-                print("Data received" + str(received_data))
+                # read all that is there or wait for one byte (blocking)
+                data = self.serial.read(self.serial.in_waiting or 1)
+            except serial.SerialException as e:
+                # probably some I/O problem such as disconnected USB serial
+                # adapters -> exit
+                error = e
+                break
+            else:
+                if data:
+                    # make a separated try-except for called used code
+                    try:
+                        self.protocol.data_received(data)
+                    except Exception as e:
+                        error = e
+                        break
+        self.alive = False
+        self.protocol.connection_lost(error)
+        self.protocol = None
 
-                # In case, Text input field
-                # self.rdata.delete(0, 'end')
-                # self.rdata.insert('end', self.queue.get())
+    def write(self, data):
+        """Thread safe writing (uses lock)"""
+        with self._lock:
 
-                # In case, Label
-                self.rdata.config(text=received_data)
-            except queue.Empty:
-                pass
-        self.after(10, self.process_serial)
+            print(data)
+            self.serial.write(data)
 
-app_main = App()
-app_main.mainloop()
+    def close(self):
+        """Close the serial port and exit reader thread (uses lock)"""
+        # use the lock to let other threads finish writing
+        with self._lock:
+            # first stop reading, so that closing can be done on idle port
+            self.stop()
+            self.serial.close()
 
-SerialThread.is_run = False
+    def connect(self):
+        """
+        Wait until connection is set up and return the transport and protocol
+        instances.
+        """
+        if self.alive:
+            self._connection_made.wait()
+            if not self.alive:
+                raise RuntimeError('connection_lost already called')
+            return (self, self.protocol)
+        else:
+            raise RuntimeError('already stopped')
+
+    # - -  context manager, returns protocol
+
+    def __enter__(self):
+        """\
+        Enter context handler. May raise RuntimeError in case the connection
+        could not be created.
+        """
+        self.start()
+        self._connection_made.wait()
+        if not self.alive:
+            raise RuntimeError('connection_lost already called')
+        return self.protocol
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Leave context: close port"""
+        self.close()

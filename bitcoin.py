@@ -169,13 +169,13 @@ class Bitcoin(tk.Frame):
         self.label_apiKey = ttk.Label(self.win, text="apiKey")  # Create a label
         self.label_apiKey.grid(column=0, row=len(self.lines) + 3)  # Label's grid
         self.apiKey_textbox = ttk.Entry(self.win, width=10, textvariable=str)
-        self.apiKey_textbox.insert(0, "")
+        self.apiKey_textbox.insert(0, "92ccf25a931830a4c3dd664662d22011")
         self.apiKey_textbox.grid(column=0, row=len(self.lines) + 4)
 
         self.label_secretKey = ttk.Label(self.win, text="secretKey")  # Create a label
         self.label_secretKey.grid(column=1, row=len(self.lines) + 3)  # Label's grid
         self.secretKey_textbox = ttk.Entry(self.win, width=10, textvariable=str)
-        self.secretKey_textbox.insert(0, "")
+        self.secretKey_textbox.insert(0, "007734825a89b23735232c9aff5e38a9")
         self.secretKey_textbox.grid(column=1, row=len(self.lines) + 4)
 
         self.label_portnumber = ttk.Label(self.win, text="포트번호")  # Create a label
@@ -187,13 +187,17 @@ class Bitcoin(tk.Frame):
         self.portnumberCombo.grid(column=2, row=len(self.lines) + 4)
         self.portnumberCombo.current(0)
 
-
-
         self.start_action = ttk.Button(self.win, text="시작", command=self.clickOK)  # Create a button
         self.start_action.grid(column=5, row=len(self.lines) + 4)
 
         self.end_action = ttk.Button(self.win, text="종료", command=self.clickExit)  # Create a button
         self.end_action.grid(column=6, row=len(self.lines) + 4)
+
+        self.buy_action = ttk.Button(self.win, text="구매", command=self.clickBUY)  # Create a button
+        self.buy_action.grid(column=7, row=len(self.lines) + 4)
+
+        self.sell_action = ttk.Button(self.win, text="판매", command=self.clickSELL)  # Create a button
+        self.sell_action.grid(column=8, row=len(self.lines) + 4)
 
         self.menuBar = Menu(self.win)  # Create a menu
         self.win.config(menu=self.menuBar)
@@ -237,6 +241,25 @@ class Bitcoin(tk.Frame):
         self.win.quit()
         self.win.destroy()
         self.exit()
+
+    def clickBUY(self):
+        self.con_key = self.apiKey_textbox.get()
+        self.sec_key = self.secretKey_textbox.get()
+
+        self.buy_result = bitcoin_api.market_buy(self.con_key,self.sec_key,"ETH")
+        self.scrt.insert("end",self.buy_result)
+
+
+
+    def clickSELL(self):
+        self.con_key = self.apiKey_textbox.get()
+        self.sec_key = self.secretKey_textbox.get()
+
+        self.sell_result = bitcoin_api.market_sell(self.con_key, self.sec_key,"ETH")
+        self.scrt.insert("end", self.sell_result)
+
+
+
 
 if __name__ == '__main__':
     root = tk.Tk()
