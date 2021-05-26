@@ -136,7 +136,7 @@ def market_buy(con_key,sec_key,coin):
 
     available_coin_count = format(float(available_coin_count), ".8f")
 
-    available_coin_count = float(trunc(available_coin_count,4))
+    available_coin_count = float(trunc(available_coin_count,6))
 
     print("현재 사용가능원화",(available_krw))
 

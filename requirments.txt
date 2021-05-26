@@ -1,0 +1,21 @@
+requests
+pandas
+pybithumb
+pycurl
+serial
+pyserial
+
+
+"""
+# upgrade pip if necessary
+pip install --upgrade pip
+
+# remove current pycurl
+pip uninstall pycurl
+
+# set PYCURL_SSL_LIBRARY
+export PYCURL_SSL_LIBRARY=nss
+
+# recompile and install pycurl
+pip install --compile pycurl
+"""
