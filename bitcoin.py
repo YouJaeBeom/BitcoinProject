@@ -210,12 +210,6 @@ class Bitcoin(tk.Frame):
         self.end_action = ttk.Button(self.win, text="종료", command=self.clickExit)  # Create a button
         self.end_action.grid(column=6, row=len(self.lines) + 4)
 
-        self.buy_action = ttk.Button(self.win, text="구매", command=self.clickBUY)  # Create a button
-        self.buy_action.grid(column=7, row=len(self.lines) + 4)
-
-        self.sell_action = ttk.Button(self.win, text="판매", command=self.clickSELL)  # Create a button
-        self.sell_action.grid(column=8, row=len(self.lines) + 4)
-
         self.menuBar = Menu(self.win)  # Create a menu
         self.win.config(menu=self.menuBar)
 
@@ -248,7 +242,6 @@ class Bitcoin(tk.Frame):
             print("error open serial port: " + str(e))
             self.result = "error open serial port: " + str(e)+"\n"
             self.scrt.insert("end",(self.result))
-            exit()
 
     def realtime_read(self):
         self.ser.flushInput()  # flush input buffer, discarding all its contents
@@ -267,13 +260,15 @@ class Bitcoin(tk.Frame):
                         self.con_key = self.apiKey_textboxs[index].get()
                         self.sec_key = self.secretKey_textboxs[index].get()
                         self.buy_result = bitcoin_api.market_buy(self.con_key, self.sec_key, self.coinname)
-                        self.scrt.insert("end", str(int(index)+1) +"번째 API KEY"+self.buy_result)
+                        self.buy_result = str(int(index)+1) +"번째 API KEY  "+self.buy_result + "\n"
+                        self.scrt.insert("end", self.buy_result)
                 elif self.command =="ask":
                     for index in range(len(self.apiKey_textboxs)):
                         self.con_key = self.apiKey_textboxs[index].get()
                         self.sec_key = self.secretKey_textboxs[index].get()
                         self.sell_result = bitcoin_api.market_sell(self.con_key, self.sec_key, self.coinname)
-                        self.scrt.insert("end", str(int(index)+1) +"번째 API KEY"+self.sell_result)
+                        self.sell_result = str(int(index) + 1) + "번째 API KEY  " + self.sell_result + "\n"
+                        self.scrt.insert("end", self.sell_result)
 
             except Exception as e:
                 pass
@@ -344,22 +339,6 @@ class Bitcoin(tk.Frame):
         self.win.quit()
         self.win.destroy()
         self.exit()
-
-    def clickBUY(self):
-        self.con_key = self.apiKey_textbox.get()
-        self.sec_key = self.secretKey_textbox.get()
-
-        self.buy_result = bitcoin_api.market_buy(self.con_key,self.sec_key,"ETH")
-        self.scrt.insert("end",self.buy_result)
-
-
-
-    def clickSELL(self):
-        self.con_key = self.apiKey_textbox.get()
-        self.sec_key = self.secretKey_textbox.get()
-
-        self.sell_result = bitcoin_api.market_sell(self.con_key, self.sec_key,"ETH")
-        self.scrt.insert("end", self.sell_result)
 
 
 

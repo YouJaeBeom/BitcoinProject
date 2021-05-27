@@ -127,35 +127,33 @@ def market_buy(con_key,sec_key,coin):
     response_json = response.json()
     closing_price = response_json['data']['closing_price']
     balance = float(closing_price)
+    try:
+        available_krw = float(get_balance(con_key,sec_key))
+        #available_krw = float(trunc(available_krw,4))
 
-    available_krw = float(get_balance(con_key,sec_key))
-    #available_krw = float(trunc(available_krw,4))
+
+        available_coin_count = float((available_krw * 0.7) / balance)
+
+        available_coin_count = format(float(available_coin_count), ".8f")
+
+        available_coin_count = float(trunc(available_coin_count,6))
+
+        print("현재 사용가능원화",(available_krw))
+
+        print("현재 시장가", (balance))
+
+        print("현재 구매가능수량", (available_coin_count))
 
 
-    available_coin_count = float((available_krw * 0.7) / balance)
+        bithumb = Bithumb(con_key, sec_key)
+        result =bithumb.buy_market_order(coin,available_coin_count,"KRW")
+        result = "coin : " + coin + "  현재 사용가능원화 : " + str(available_krw) + "  현재 시장가 : " + str(
+            balance) + "  현재 구매가능수량 : " + str(available_coin_count) + str(result)
+    except:
+        result = "존재하지 않는 API KEY"
 
-    available_coin_count = format(float(available_coin_count), ".8f")
-
-    available_coin_count = float(trunc(available_coin_count,6))
-
-    print("현재 사용가능원화",(available_krw))
-
-    print("현재 시장가", (balance))
-
-    print("현재 구매가능수량", (available_coin_count))
-
-    bithumb = Bithumb(con_key, sec_key)
-    result =bithumb.buy_market_order(coin,available_coin_count,"KRW")
-
-    """api = XCoinAPI(con_key, sec_key)
-    parm = {
-        "order_currency": coin,
-        "payment_currency": "KRW",
-        "units" : (available_coin_count)
-    }
-    result = api.xcoinApiCall("/trade/market_buy", parm)"""
-    print("response", result)
-    return result
+    print("response", str(result))
+    return str(result)
 
 def get_account(con_key,sec_key,coin):
     api = XCoinAPI(con_key, sec_key)
@@ -169,21 +167,27 @@ def get_account(con_key,sec_key,coin):
     return balance
 
 def market_sell(con_key,sec_key,coin):
-    balance = float(get_account(con_key,sec_key,coin))
+    try:
+        balance = float(get_account(con_key,sec_key,coin))
 
-    balance = float(format(float(balance), ".8f"))
-    balance = float(trunc(balance, 4))
+        balance = float(format(float(balance), ".8f"))
+        balance = float(trunc(balance, 4))
+
+        print(coin,balance)
+
+        api = XCoinAPI(con_key, sec_key)
+
+        parm = {
+            "order_currency": coin,
+            "payment_currency": "KRW",
+            "units": (balance)
+        }
+        result = api.xcoinApiCall("/trade/market_sell", parm)
+        result = "coin : " + coin + "  판매가능 코인개수 : " + str(balance) + str(result)
+    except:
+        result = "존재하지 않는 API KEY"
+
+    print("response", str(result))
 
 
-    print(coin,balance)
-    api = XCoinAPI(con_key, sec_key)
-
-    parm = {
-        "order_currency": coin,
-        "payment_currency": "KRW",
-        "units": (balance)
-    }
-    result = api.xcoinApiCall("/trade/market_sell", parm)
-
-    print("response", result)
-    return result
+    return str(result)
