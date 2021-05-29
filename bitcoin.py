@@ -223,6 +223,15 @@ class Bitcoin(tk.Frame):
         self.baudrateCombo.grid(column=3, row=len(self.lines) + 4)
         self.baudrateCombo.current(0)
 
+        self.label_delaytime = ttk.Label(self.win, text="Delay Time")  # Create a label
+        self.label_delaytime.grid(column=4, row=len(self.lines) + 3)  # Label's grid
+        self.delaytime = tk.StringVar()  # String variable
+        self.delaytimeCombo = ttk.Combobox(self.win, width=6, textvariable=self.delaytime)  # Create a combobox
+        self.delaytimeCombo['values'] = (
+            "1", "2", "3", "4", "5", "6", "7", "8", "9")  # Combobox's items
+        self.delaytimeCombo.grid(column=4, row=len(self.lines) + 4)
+        self.delaytimeCombo.current(0)
+
         self.start_action = ttk.Button(self.win, text="시작", command=self.clickOK)  # Create a button
         self.start_action.grid(column=5, row=len(self.lines) + 4)
 
@@ -299,6 +308,7 @@ class Bitcoin(tk.Frame):
         self.sto_length = int(self.length_Entered.get())
         self.sto_smoothk = int(self.smoothk_Entered.get())
         self.sto_smoothd = int(self.smoothd_Entered.get())
+        self.delay_time = self.delaytimeCombo.get()
 
 
         if (self.sto_length ==0 and self.sto_smoothk==0 and self.sto_smoothd==0):
@@ -313,7 +323,7 @@ class Bitcoin(tk.Frame):
                     self.smoothk.set(self.sto_smoothk )
                     self.smoothd.set(self.sto_smoothd)
 
-                    self.closing_price,self.avg_5min_price,self.avg_10min_price,self.avg_30min_price,self.avg_1hour_price,self.length_,self.smoothk_,self.smoothd_ = bitcoin_api.coin_ticker_public(value,self.sto_length,self.sto_smoothk,self.sto_smoothd)
+                    self.closing_price,self.avg_5min_price,self.avg_10min_price,self.avg_30min_price,self.avg_1hour_price,self.length_,self.smoothk_,self.smoothd_ = bitcoin_api.coin_ticker_public(value,self.sto_length,self.sto_smoothk,self.sto_smoothd,self.delay_time)
 
                     if (self.closing_price == 0
                             and self.avg_5min_price  ==0

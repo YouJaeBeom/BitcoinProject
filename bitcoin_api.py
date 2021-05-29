@@ -21,8 +21,9 @@ def trunc(number, ndigits):
     truncated_number = '.'.join([parts[0], parts[1][:ndigits]]) # We keep this first part, while taking only 2 digits from the second part. Then we concat it together to get '-5.44'
     return round(float(truncated_number), ndigits)  # This should return a float number, but to make sure it is roundded to 2 decimals.
 
-def coin_ticker_public(coin_name,sto_N,sto_m,sto_t):
+def coin_ticker_public(coin_name,sto_N,sto_m,sto_t,delay_time):
     try:
+        time.sleep(int(delay_time))
         bitcoin_api_url = 'https://api.bithumb.com/public/ticker/%s_%s'%(coin_name,"KRW")
         response = requests.get(bitcoin_api_url)
         print("ticker",coin_name,response.text)
