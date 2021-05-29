@@ -93,17 +93,21 @@ class Bitcoin(tk.Frame):
         self.smoothk_textEntry = {}
         self.smoothd_textboxs = {}
         self.smoothd_textEntry = {}
+        self.check_value = {}
 
         print(os.getcwd())
-        self.f = open(os.getcwd() + "/coin.txt", 'r')
-        self.lines = self.f.readline()
-        self.lines = self.lines.split(",")
+        try:
+            self.f = open(os.getcwd() + "/coin.txt", 'r')
+            self.lines = self.f.readline()
+            self.lines = self.lines.split(",")
+        except:
+            self.lines=["불러올 코인이 없습니다."]
 
         for index, val in enumerate((self.lines)):
-            value = tk.IntVar()
+            self.check_value[index] = tk.IntVar()
             self.check = tk.Checkbutton(
                 self.win,
-                variable=value
+                variable=self.check_value[index]
             )
             self.check.grid(column=0, row=index + 1)
             self.check_box[index] = self.check
@@ -174,15 +178,30 @@ class Bitcoin(tk.Frame):
         self.apiKey_textboxs = {}
         self.secretKey_textboxs = {}
 
-        for index in range(0,5):
+        try :
+            self.api_f = open(os.getcwd() + "/API.txt", 'r')
+            self.api_lines = self.api_f.readline()
+            self.api_lines = self.api_lines.split(",")
+        except :
+            self.api_lines=["불러올 API가 없습니다."]
+
+        try :
+            self.scr_api_f = open(os.getcwd() + "/S_API.txt", 'r')
+            self.scr_api_lines = self.scr_api_f.readline()
+            self.scr_api_lines = self.scr_api_lines.split(",")
+        except :
+            self.scr_api_lines=["불러올 API가 없습니다."]
+
+        for index, val in enumerate((self.api_lines)):
             ## API KEY setting gui
             self.apiKey_textbox = ttk.Entry(self.win, width=10, textvariable=str)
-            self.apiKey_textbox.insert(0, "")
+            self.apiKey_textbox.insert(0, val)
             self.apiKey_textbox.grid(column=0, row=len(self.lines) + 4+int(index))
             self.apiKey_textboxs[index] = self.apiKey_textbox
 
+        for index, val in enumerate((self.scr_api_lines)):
             self.secretKey_textbox = ttk.Entry(self.win, width=10, textvariable=str)
-            self.secretKey_textbox.insert(0, "")
+            self.secretKey_textbox.insert(0, val)
             self.secretKey_textbox.grid(column=1, row=len(self.lines) + 4+int(index))
             self.secretKey_textboxs[index] = self.secretKey_textbox
 
@@ -280,12 +299,21 @@ class Bitcoin(tk.Frame):
         self.sto_length = int(self.length_Entered.get())
         self.sto_smoothk = int(self.smoothk_Entered.get())
         self.sto_smoothd = int(self.smoothd_Entered.get())
+
+
         if (self.sto_length ==0 and self.sto_smoothk==0 and self.sto_smoothd==0):
             self.scrt.insert("end", ("길이, 스무스 미설정 \n"))
         else :
             while True:
                 for index, value in enumerate(self.lines):
-                    self.closing_price,self.avg_5min_price,self.avg_10min_price,self.avg_30min_price,self.avg_1hour_price,self.length,self.smoothk,self.smoothd = bitcoin_api.coin_ticker_public(value,self.sto_length,self.sto_smoothk,self.sto_smoothd)
+                    if (self.check_value[index].get()==0):
+                        continue
+
+                    self.length.set(self.sto_length)
+                    self.smoothk.set(self.sto_smoothk )
+                    self.smoothd.set(self.sto_smoothd)
+
+                    self.closing_price,self.avg_5min_price,self.avg_10min_price,self.avg_30min_price,self.avg_1hour_price,self.length_,self.smoothk_,self.smoothd_ = bitcoin_api.coin_ticker_public(value,self.sto_length,self.sto_smoothk,self.sto_smoothd)
 
                     if (self.closing_price == 0
                             and self.avg_5min_price  ==0
@@ -300,9 +328,9 @@ class Bitcoin(tk.Frame):
                     self.avg_10min_price = format(float(self.avg_10min_price), "014.3f")
                     self.avg_30min_price = format(float(self.avg_30min_price), "014.3f")
                     self.avg_1hour_price = format(float(self.avg_1hour_price), "014.3f")
-                    self.length = format(int(self.length), "03d")
-                    self.smoothk = format(int(self.smoothk), "03d")
-                    self.smoothd = format(int(self.smoothd), "03d")
+                    self.length_ = format(int(self.length_), "03d")
+                    self.smoothk_ = format(int(self.smoothk_), "03d")
+                    self.smoothd_ = format(int(self.smoothd_), "03d")
 
                     ## text setting
                     self.price_textEntry[index].set(self.closing_price)
@@ -310,9 +338,9 @@ class Bitcoin(tk.Frame):
                     self.avg10_textEntry[index].set(self.avg_10min_price)
                     self.avg30_textEntry[index].set(self.avg_30min_price)
                     self.avg60_textEntry[index].set(self.avg_1hour_price)
-                    self.length_textEntry[index].set(self.length)
-                    self.smoothk_textEntry[index].set(self.smoothk)
-                    self.smoothd_textEntry[index].set(self.smoothd)
+                    self.length_textEntry[index].set(self.length_)
+                    self.smoothk_textEntry[index].set(self.smoothk_)
+                    self.smoothd_textEntry[index].set(self.smoothd_)
 
 
                     self.serial_protocol = (">>"+value+"__"+"/"+str(self.closing_price)
@@ -321,9 +349,9 @@ class Bitcoin(tk.Frame):
                                             +"/"+str(self.avg_10min_price)
                                             +"/"+str(self.avg_30min_price)
                                             +"/"+str(self.avg_1hour_price)
-                                            +"/"+str(self.length)
-                                            +"/"+str(self.smoothk)
-                                            +"/"+str(self.smoothd)
+                                            +"/"+str(self.length_)
+                                            +"/"+str(self.smoothk_)
+                                            +"/"+str(self.smoothd_)
                                             +"/<<")
                     self.ser.flushOutput()
                     self.ser.write(str.encode(self.serial_protocol))

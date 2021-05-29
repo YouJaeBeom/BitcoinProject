@@ -25,7 +25,7 @@ def coin_ticker_public(coin_name,sto_N,sto_m,sto_t):
     try:
         bitcoin_api_url = 'https://api.bithumb.com/public/ticker/%s_%s'%(coin_name,"KRW")
         response = requests.get(bitcoin_api_url)
-        time.sleep(1)
+        print("ticker",coin_name,response.text)
         response_json = response.json()
 
         closing_price = response_json['data']['closing_price']
@@ -36,7 +36,7 @@ def coin_ticker_public(coin_name,sto_N,sto_m,sto_t):
         ##
         bitcoin_api_url = 'https://api.bithumb.com/public/candlestick/%s_%s/%s' % (coin_name, "KRW", "1m")
         response = requests.get(bitcoin_api_url)
-        time.sleep(1)
+        #print("candlestick",coin_name, response.text)
         response_json = response.json()
         df = pd.DataFrame(response_json['data'])
         df.set_index(0, inplace=True)
@@ -45,7 +45,7 @@ def coin_ticker_public(coin_name,sto_N,sto_m,sto_t):
         # 스토캐스틱 %K (fast %K) = (현재가격-N일중 최저가)/(N일중 최고가-N일중 최저가) ×100
         df["max%d" % sto_N] = (df["high"]).rolling(sto_N).max()
         df["min%d" % sto_N] = (df["low"]).rolling(sto_N).min()
-        df["stochastic%K"] = df.apply(lambda x: 100 * (int(x["close"]) - x["min%d" % sto_N]) /
+        df["stochastic%K"] = df.apply(lambda x: 100 * (float(x["close"]) - x["min%d" % sto_N]) /
                                                 (x["max%d" % sto_N] - x["min%d" % sto_N])
         if (x["max%d" % sto_N] - x["min%d" % sto_N]) != 0 else 50, 1)
         # 스토캐스틱 %D (fast %D) = m일 동안 %K 평균 = Slow %K
@@ -99,6 +99,7 @@ def coin_ticker_public(coin_name,sto_N,sto_m,sto_t):
         smoothd = df.iloc[len(df) - 1]["slow_%D"]
         #print("smoothd", smoothd)
     except Exception as ex:
+        print("Exception",ex)
         closing_price=0
         avg_5min_price=0
         avg_10min_price=0
