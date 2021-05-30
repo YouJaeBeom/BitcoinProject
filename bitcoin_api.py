@@ -26,7 +26,6 @@ def coin_ticker_public(coin_name,sto_N,sto_m,sto_t,delay_time):
         time.sleep(int(delay_time))
         bitcoin_api_url = 'https://api.bithumb.com/public/ticker/%s_%s'%(coin_name,"KRW")
         response = requests.get(bitcoin_api_url)
-        print("ticker",coin_name,response.text)
         response_json = response.json()
 
         closing_price = response_json['data']['closing_price']

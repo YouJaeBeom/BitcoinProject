@@ -228,7 +228,7 @@ class Bitcoin(tk.Frame):
         self.delaytime = tk.StringVar()  # String variable
         self.delaytimeCombo = ttk.Combobox(self.win, width=6, textvariable=self.delaytime)  # Create a combobox
         self.delaytimeCombo['values'] = (
-            "1", "2", "3", "4", "5", "6", "7", "8", "9")  # Combobox's items
+            "0","1", "2", "3", "4", "5", "6", "7", "8", "9")  # Combobox's items
         self.delaytimeCombo.grid(column=4, row=len(self.lines) + 4)
         self.delaytimeCombo.current(0)
 
@@ -301,7 +301,57 @@ class Bitcoin(tk.Frame):
             except Exception as e:
                 pass
 
+    def realtime_write(self):
 
+        self.sto_length = int(self.length_Entered.get())
+        self.sto_smoothk = int(self.smoothk_Entered.get())
+        self.sto_smoothd = int(self.smoothd_Entered.get())
+        self.delay_time = self.delaytimeCombo.get()
+
+        if (self.sto_length ==0 and self.sto_smoothk==0 and self.sto_smoothd==0):
+            self.scrt.insert("end", ("길이, 스무스 미설정 \n"))
+        else :
+            while True:
+                for index, value in enumerate(self.lines):
+                    if (self.check_value[index].get()==0):
+                        continue
+
+                    self.length.set(self.sto_length)
+                    self.smoothk.set(self.sto_smoothk )
+                    self.smoothd.set(self.sto_smoothd)
+
+                    self.closing_price, self.avg_5min_price, self.avg_10min_price, self.avg_30min_price, self.avg_1hour_price, self.length_, self.smoothk_, self.smoothd_ = bitcoin_api.coin_ticker_public(
+                        value, self.sto_length, self.sto_smoothk, self.sto_smoothd, self.delay_time)
+
+                    if (self.closing_price == 0
+                            and self.avg_5min_price  ==0
+                            and self.avg_10min_price  ==0
+                            and self.avg_30min_price  ==0
+                            and self.avg_1hour_price == 0
+                    ):
+                        continue
+                    ## setting string formating
+                    self.closing_price = format(float(self.closing_price), "014.3f")
+                    self.avg_5min_price = format(float(self.avg_5min_price), "014.3f")
+                    self.avg_10min_price = format(float(self.avg_10min_price), "014.3f")
+                    self.avg_30min_price = format(float(self.avg_30min_price), "014.3f")
+                    self.avg_1hour_price = format(float(self.avg_1hour_price), "014.3f")
+                    self.length_ = format(int(self.length_), "03d")
+                    self.smoothk_ = format(int(self.smoothk_), "03d")
+                    self.smoothd_ = format(int(self.smoothd_), "03d")
+
+                    self.serial_protocol = (">>"+value+"__"+"/"+str(self.closing_price)
+                                            +"/"+str(self.closing_price)
+                                            +"/"+str(self.avg_5min_price)
+                                            +"/"+str(self.avg_10min_price)
+                                            +"/"+str(self.avg_30min_price)
+                                            +"/"+str(self.avg_1hour_price)
+                                            +"/"+str(self.length_)
+                                            +"/"+str(self.smoothk_)
+                                            +"/"+str(self.smoothd_)
+                                            +"/<<")
+                    self.ser.flushOutput()
+                    self.ser.write(str.encode(self.serial_protocol))
 
     def realtime_update(self):
 
@@ -323,7 +373,8 @@ class Bitcoin(tk.Frame):
                     self.smoothk.set(self.sto_smoothk )
                     self.smoothd.set(self.sto_smoothd)
 
-                    self.closing_price,self.avg_5min_price,self.avg_10min_price,self.avg_30min_price,self.avg_1hour_price,self.length_,self.smoothk_,self.smoothd_ = bitcoin_api.coin_ticker_public(value,self.sto_length,self.sto_smoothk,self.sto_smoothd,self.delay_time)
+                    self.closing_price, self.avg_5min_price, self.avg_10min_price, self.avg_30min_price, self.avg_1hour_price, self.length_, self.smoothk_, self.smoothd_ = bitcoin_api.coin_ticker_public(
+                        value, self.sto_length, self.sto_smoothk, self.sto_smoothd, self.delay_time)
 
                     if (self.closing_price == 0
                             and self.avg_5min_price  ==0
@@ -353,23 +404,10 @@ class Bitcoin(tk.Frame):
                     self.smoothd_textEntry[index].set(self.smoothd_)
 
 
-                    self.serial_protocol = (">>"+value+"__"+"/"+str(self.closing_price)
-                                            +"/"+str(self.closing_price)
-                                            +"/"+str(self.avg_5min_price)
-                                            +"/"+str(self.avg_10min_price)
-                                            +"/"+str(self.avg_30min_price)
-                                            +"/"+str(self.avg_1hour_price)
-                                            +"/"+str(self.length_)
-                                            +"/"+str(self.smoothk_)
-                                            +"/"+str(self.smoothd_)
-                                            +"/<<")
-                    self.ser.flushOutput()
-                    self.ser.write(str.encode(self.serial_protocol))
-                    time.sleep(1)
-
     def clickOK(self):
         self.pyserial_setting()
         threading.Thread(target=self.realtime_update, daemon=True).start()
+        threading.Thread(target=self.realtime_write, daemon=True).start()
         threading.Thread(target=self.realtime_read, daemon=True).start()
 
     # Click a exit menu
