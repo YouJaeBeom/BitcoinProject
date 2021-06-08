@@ -228,7 +228,7 @@ class Bitcoin(tk.Frame):
         self.delaytime = tk.StringVar()  # String variable
         self.delaytimeCombo = ttk.Combobox(self.win, width=6, textvariable=self.delaytime)  # Create a combobox
         self.delaytimeCombo['values'] = (
-            "0","1", "2", "3", "4", "5", "6", "7", "8", "9")  # Combobox's items
+            "0","0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9","1")  # Combobox's items
         self.delaytimeCombo.grid(column=4, row=len(self.lines) + 4)
         self.delaytimeCombo.current(0)
 
