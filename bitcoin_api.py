@@ -23,7 +23,7 @@ def trunc(number, ndigits):
 
 def coin_ticker_public(coin_name,sto_N,sto_m,sto_t,delay_time):
     try:
-        time.sleep(int(delay_time))
+        time.sleep(float(delay_time))
         bitcoin_api_url = 'https://api.bithumb.com/public/ticker/%s_%s'%(coin_name,"KRW")
         response = requests.get(bitcoin_api_url)
         response_json = response.json()
