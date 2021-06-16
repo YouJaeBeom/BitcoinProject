@@ -47,8 +47,15 @@ class Bitcoin(tk.Frame):
         self.label_avg30 = ttk.Label(self.win, text=" 30분평균")  # Create a label
         self.label_avg30.grid(column=5, row=0)  # Label's grid
 
-        self.label_avg60 = ttk.Label(self.win, text=" 1시간 평균")  # Create a label
-        self.label_avg60.grid(column=6, row=0)  # Label's grid
+        #self.label_avg60 = ttk.Label(self.win, text=" 1시간 평균")  # Create a label
+        #self.label_avg60.grid(column=6, row=0)  # Label's grid
+
+        self.label_avg60 = tk.StringVar()  # String variable
+        self.label_avg60Combo = ttk.Combobox(self.win, width=6, textvariable=self.label_avg60)  # Create a combobox
+        self.label_avg60Combo['values'] = (
+            "1시간평균", "2시간평균", "3시간평균", "4시간평균")  # Combobox's items
+        self.label_avg60Combo.grid(column=6, row=0)
+        self.label_avg60Combo.current(0)
 
         self.label_length = ttk.Label(self.win, text="길이")  # Create a label
         self.label_length.grid(column=7, row=0)  # Label's grid
@@ -307,6 +314,10 @@ class Bitcoin(tk.Frame):
         self.sto_smoothk = int(self.smoothk_Entered.get())
         self.sto_smoothd = int(self.smoothd_Entered.get())
         self.delay_time = self.delaytimeCombo.get()
+        self.avg_h = str(self.label_avg60Combo.get()).split("시간평균")[0]
+
+        print("avg_h",self.avg_h)
+
 
         if (self.sto_length ==0 and self.sto_smoothk==0 and self.sto_smoothd==0):
             self.scrt.insert("end", ("길이, 스무스 미설정 \n"))
@@ -321,7 +332,7 @@ class Bitcoin(tk.Frame):
                     self.smoothd.set(self.sto_smoothd)
 
                     self.closing_price, self.avg_5min_price, self.avg_10min_price, self.avg_30min_price, self.avg_1hour_price, self.length_, self.smoothk_, self.smoothd_ = bitcoin_api.coin_ticker_public(
-                        value, self.sto_length, self.sto_smoothk, self.sto_smoothd, self.delay_time)
+                        value, self.avg_h ,self.sto_length, self.sto_smoothk, self.sto_smoothd, self.delay_time)
 
                     if (self.closing_price == 0
                             and self.avg_5min_price  ==0
@@ -359,6 +370,7 @@ class Bitcoin(tk.Frame):
         self.sto_smoothk = int(self.smoothk_Entered.get())
         self.sto_smoothd = int(self.smoothd_Entered.get())
         self.delay_time = self.delaytimeCombo.get()
+        self.avg_h = str(self.label_avg60Combo.get()).split("시간평균")[0]
 
 
         if (self.sto_length ==0 and self.sto_smoothk==0 and self.sto_smoothd==0):
@@ -374,7 +386,7 @@ class Bitcoin(tk.Frame):
                     self.smoothd.set(self.sto_smoothd)
 
                     self.closing_price, self.avg_5min_price, self.avg_10min_price, self.avg_30min_price, self.avg_1hour_price, self.length_, self.smoothk_, self.smoothd_ = bitcoin_api.coin_ticker_public(
-                        value, self.sto_length, self.sto_smoothk, self.sto_smoothd, self.delay_time)
+                        value,self.avg_h, self.sto_length, self.sto_smoothk, self.sto_smoothd, self.delay_time)
 
                     if (self.closing_price == 0
                             and self.avg_5min_price  ==0

@@ -21,7 +21,7 @@ def trunc(number, ndigits):
     truncated_number = '.'.join([parts[0], parts[1][:ndigits]]) # We keep this first part, while taking only 2 digits from the second part. Then we concat it together to get '-5.44'
     return round(float(truncated_number), ndigits)  # This should return a float number, but to make sure it is roundded to 2 decimals.
 
-def coin_ticker_public(coin_name,sto_N,sto_m,sto_t,delay_time):
+def coin_ticker_public(coin_name,avg_h,sto_N,sto_m,sto_t,delay_time):
     try:
         time.sleep(float(delay_time))
         bitcoin_api_url = 'https://api.bithumb.com/public/ticker/%s_%s'%(coin_name,"KRW")
@@ -83,11 +83,11 @@ def coin_ticker_public(coin_name,sto_N,sto_m,sto_t,delay_time):
         #print("avg_30min_price", avg_30min_price)
 
         ## 1시간 평균
-        avg_1hours = df.iloc[len(df['close']) - 60:]['close']
+        avg_1hours = df.iloc[len(df['close']) - (60*int(avg_h)):]['close']
         total_1hour_price = 0
         for avg_1hour in avg_1hours:
             total_1hour_price += float(avg_1hour)
-        avg_1hour_price = total_1hour_price / 60
+        avg_1hour_price = total_1hour_price / (60*int(avg_h))
         #print("avg_1hour_price", avg_1hour_price)
 
         length = df.iloc[len(df) - 1]["stochastic%K"]
